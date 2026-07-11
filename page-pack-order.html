@@ -994,6 +994,221 @@
   #cl-pack .cl-success-btn--solid:hover {
     opacity: .85;
   }
+
+  /* ── Image Showcase overlay ── */
+  #cl-img-showcase-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 99999;
+    align-items: flex-end;
+    justify-content: center;
+    animation: clFadeIn .2s ease;
+  }
+
+  #cl-img-showcase-overlay.open {
+    display: flex;
+  }
+
+  @keyframes clFadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  #cl-img-showcase-modal {
+    background: #111;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 520px;
+    padding-bottom: 24px;
+    position: relative;
+    animation: clSlideUp .25s ease;
+    max-height: 95vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #cl-img-showcase-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  #cl-img-showcase-counter {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+    padding: 14px 0 6px;
+    flex-shrink: 0;
+  }
+
+  #cl-img-showcase-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+  }
+
+  #cl-img-showcase-main {
+    width: 100%;
+    max-height: 52vh;
+    object-fit: contain;
+    display: block;
+  }
+
+  .cl-showcase-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    font-size: 26px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background .15s;
+  }
+
+  .cl-showcase-arrow:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+
+  #cl-img-showcase-label {
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px 0;
+    flex-shrink: 0;
+  }
+
+  #cl-img-showcase-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    flex-shrink: 0;
+  }
+
+  .cl-showcase-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background .15s, transform .15s;
+  }
+
+  .cl-showcase-dot.active {
+    background: #fff;
+    transform: scale(1.35);
+  }
+
+  #cl-img-showcase-thumbs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 0;
+    overflow-x: auto;
+    justify-content: center;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+
+  #cl-img-showcase-thumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cl-showcase-thumb {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.55;
+    transition: opacity .15s, border-color .15s;
+  }
+
+  .cl-showcase-thumb.active {
+    border-color: #fff;
+    opacity: 1;
+  }
+
+  /* Tap-hint badge on card image */
+  #cl-pack .cl-card-img-wrap {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  #cl-pack .cl-card-img-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: rgba(0, 0, 0, 0.58);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 12px;
+    pointer-events: none;
+    letter-spacing: .3px;
+  }
+
+  @keyframes clWiggleLeft {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(-6px);
+    }
+  }
+
+  @keyframes clPulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.4;
+    }
+  }
 </style>
 
 <div id="cl-pack">
@@ -1002,9 +1217,11 @@
   <div id="cl-view-list" class="cl-view" style="background: var(--muted); padding: 60px 20px 80px;">
     <div style="max-width: 1000px; margin: 0 auto;">
       <div style="text-align: center; margin-bottom: 44px;">
-        <h2 style="font-size: 28px; font-weight: 900; color: var(--ink); margin-bottom: 8px;">اختر باقتك المفضلة</h2>
+        <h2 style="font-size: 28px; font-weight: 900; color: var(--ink); margin-bottom: 8px;">اختر باقتك المفضلة
+        </h2>
         <p style="color: var(--sub); font-size: 15px;">تشكيلة من أفضل الباقات المختارة بعناية لتناسب ذوقك</p>
-        <div style="width: 40px; height: 3px; background: var(--ink); margin: 20px auto 0; border-radius: 2px;"></div>
+        <div style="width: 40px; height: 3px; background: var(--ink); margin: 20px auto 0; border-radius: 2px;">
+        </div>
       </div>
       <div id="cl-packs-list"
         style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; direction: ltr;"></div>
@@ -1036,11 +1253,26 @@
         <div class="cl-section-hd">اختر مقاسك</div>
         <div class="cl-notice" id="cl-notice">اضغط على المقاس لإضافته</div>
 
-        <div class="cl-swipe-indicator">
-          👈 اسحب لرؤية المزيد من المنتجات
+        <div class="cl-swipe-indicator"
+          style="display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--sub); font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+          اسحب لرؤية المزيد من المنتجات
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="animation: clWiggleLeft 1.5s infinite ease-in-out;">
+            <path d="M19 12H5"></path>
+            <path d="M12 19l-7-7 7-7"></path>
+          </svg>
         </div>
 
-        <div class="cl-grid" id="cl-grid" style="margin-top:14px;"></div>
+        <div style="position: relative;">
+          <!-- Scroll arrow: right -->
+          <button id="cl-client-scroll-right" onclick="clScrollClientGrid('right')"
+            style="direction: ltr; position:absolute; right:-14px; top:45%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❯</button>
+          <!-- Scroll arrow: left -->
+          <button id="cl-client-scroll-left" onclick="clScrollClientGrid('left')"
+            style="direction: ltr; position:absolute; left:-14px; top:45%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❮</button>
+
+          <div class="cl-grid" id="cl-grid" style="margin-top:14px;"></div>
+        </div>
 
         <div id="cl-no-products" style="display:none;text-align:center;padding:48px 20px;color:var(--sub);">
           <div style="font-size:36px;margin-bottom:12px;">😕</div>
@@ -1104,7 +1336,8 @@
         <p>شكراً لطلبك — سيقوم فريقنا بالاتصال بك قريباً لتأكيد التوصيل.</p>
         <div class="cl-order-ref" id="cl-order-ref"></div>
         <div class="cl-success-actions">
-          <a href="https://chicandlouz.store/products/" class="cl-success-btn cl-success-btn--outline">تصفح المتجر</a>
+          <a href="https://chicandlouz.store/products/" class="cl-success-btn cl-success-btn--outline">تصفح
+            المتجر</a>
           <a href="https://chicandlouz.store/pack-offer/" class="cl-success-btn cl-success-btn--solid">العودة
             للباقات</a>
         </div>
@@ -1181,14 +1414,19 @@
           <input type="file" id="cl-create-image" accept="image/*"
             style="direction: ltr; text-align: right; padding: 8px;">
           <div id="cl-current-image-wrap" style="display:none; margin-top:10px; display:none;">
-            <p style="font-size:12px; color:var(--sub); margin-bottom:6px;">الصورة الحالية — اختر ملفاً جديداً لاستبدالها، أو اتركها كما هي:</p>
-            <img id="cl-current-image-preview" src="" style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid var(--line);">
+            <p style="font-size:12px; color:var(--sub); margin-bottom:6px;">الصورة الحالية — اختر ملفاً
+              جديداً لاستبدالها، أو اتركها كما هي:</p>
+            <img id="cl-current-image-preview" src=""
+              style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid var(--line);">
           </div>
         </div>
 
-        <div class="cl-field" style="background:#f0faf4; border:1.5px solid #a8d8b8; border-radius:8px; padding:12px 14px;">
-          <p style="margin:0; font-size:13px; color:#2d6a4f; font-weight:700;">🚚 أسعار التوصيل تلقائية حسب الولاية</p>
-          <p style="margin:4px 0 0; font-size:12px; color:#555;">يتم احتساب سعر التوصيل تلقائياً من جدول الأسعار لكل ولاية — لا حاجة لإدخاله هنا.</p>
+        <div class="cl-field"
+          style="background:#f0faf4; border:1.5px solid #a8d8b8; border-radius:8px; padding:12px 14px;">
+          <p style="margin:0; font-size:13px; color:#2d6a4f; font-weight:700;">🚚 أسعار التوصيل تلقائية حسب
+            الولاية</p>
+          <p style="margin:4px 0 0; font-size:12px; color:#555;">يتم احتساب سعر التوصيل تلقائياً من جدول
+            الأسعار لكل ولاية — لا حاجة لإدخاله هنا.</p>
         </div>
 
         <div class="cl-field">
@@ -1225,6 +1463,15 @@
           </select>
         </div>
 
+        <div class="cl-field" id="cl-selected-products-container" style="display: none;">
+          <label style="color: var(--ink);">المنتجات المختارة (رتبها كما تريد أن تظهر للعميل)</label>
+          <div style="position: relative;">
+            <div id="cl-create-selected-list"
+              style="display: grid; grid-auto-flow: column; grid-auto-columns: 120px; gap: 10px; overflow-x: auto; padding: 12px 12px 12px 4px; border: 1.5px dashed var(--ink); border-radius: 8px; background: #fafafa; scrollbar-width: none;">
+            </div>
+          </div>
+        </div>
+
         <div class="cl-field">
           <label>البحث واختيار المنتجات المتوفرة</label>
           <input type="text" id="cl-create-search" oninput="clSearchProducts()" placeholder="🔍 ابحث عن منتج هنا..."
@@ -1233,21 +1480,39 @@
           <div style="position: relative;">
             <!-- Scroll arrow: right -->
             <button id="cl-scroll-right" onclick="clScrollProducts('right')"
-              style="position:absolute; right:-14px; top:50%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❯</button>
+              style="direction: ltr; position:absolute; right:-14px; top:50%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❯</button>
             <!-- Scroll arrow: left -->
             <button id="cl-scroll-left" onclick="clScrollProducts('left')"
-              style="position:absolute; left:-14px; top:50%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❮</button>
+              style="direction: ltr; position:absolute; left:-14px; top:50%; transform:translateY(-50%); z-index:10; width:32px; height:48px; border:1.5px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:opacity .2s;">❮</button>
 
             <div id="cl-create-products-list"
               style="display: grid; grid-template-rows: repeat(2, auto); grid-auto-flow: column; grid-auto-columns: 120px; gap: 10px; overflow-x: auto; padding: 12px 12px 12px 4px; scroll-padding-left: 12px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--muted); scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
-              <div style="text-align:center; padding: 20px; color: var(--sub); grid-column: span 3;">جاري تحميل كل المنتجات من المتجر...</div>
+              <div style="text-align:center; padding: 20px; color: var(--sub); grid-column: span 3;">جاري
+                تحميل كل المنتجات من المتجر...</div>
             </div>
           </div>
         </div>
 
-        <button onclick="clSaveNewPack()" id="cl-btn-save-pack" class="cl-btn-submit">حفظ الباقة ونشرها 🚀</button>
+        <button onclick="clSaveNewPack()" id="cl-btn-save-pack" class="cl-btn-submit">حفظ الباقة ونشرها
+          🚀</button>
         <div id="cl-create-err" class="cl-err"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Image Showcase Modal -->
+  <div id="cl-img-showcase-overlay" role="dialog" aria-modal="true">
+    <div id="cl-img-showcase-modal">
+      <button id="cl-img-showcase-close" aria-label="إغلاق">✕</button>
+      <div id="cl-img-showcase-counter"></div>
+      <div id="cl-img-showcase-wrap">
+        <button class="cl-showcase-arrow" id="cl-showcase-prev" aria-label="السابق" style="left:10px">‹</button>
+        <img id="cl-img-showcase-main" src="" alt="" />
+        <button class="cl-showcase-arrow" id="cl-showcase-next" aria-label="التالي" style="right:10px">›</button>
+      </div>
+      <div id="cl-img-showcase-label"></div>
+      <div id="cl-img-showcase-dots"></div>
+      <div id="cl-img-showcase-thumbs"></div>
     </div>
   </div>
 
@@ -1261,8 +1526,8 @@
 
 <script>
   (function () {
-    // إعدادات تيليجرام - ضع التوكن والأيدي هنا
     // 🔑 Fill in your credentials — see .env.example
+    // إعدادات تيليجرام - ضع التوكن والأيدي هنا
     const TELEGRAM_BOT_TOKEN = "PUT_YOUR_TELEGRAM_BOT_TOKEN_HERE";
     const TELEGRAM_CHAT_ID = "PUT_YOUR_TELEGRAM_CHAT_ID_HERE";
 
@@ -1300,64 +1565,64 @@
 
     // ── Per-wilaya shipping rates (home / desk) ──
     const WILAYA_SHIPPING = {
-      '01': { home: 1200, desk: 900  },  // Adrar
-      '02': { home: 700,  desk: 400  },  // Chlef
-      '03': { home: 900,  desk: 600  },  // Laghouat
-      '04': { home: 750,  desk: 450  },  // Oum El Bouaghi
-      '05': { home: 750,  desk: 450  },  // Batna
-      '06': { home: 750,  desk: 450  },  // Béjaïa
-      '07': { home: 850,  desk: 550  },  // Biskra
-      '08': { home: 1200, desk: 900  },  // Bechar
-      '09': { home: 650,  desk: 400  },  // Blida
-      '10': { home: 700,  desk: 400  },  // Bouira
+      '01': { home: 1200, desk: 900 },  // Adrar
+      '02': { home: 700, desk: 400 },  // Chlef
+      '03': { home: 900, desk: 600 },  // Laghouat
+      '04': { home: 750, desk: 450 },  // Oum El Bouaghi
+      '05': { home: 750, desk: 450 },  // Batna
+      '06': { home: 750, desk: 450 },  // Béjaïa
+      '07': { home: 850, desk: 550 },  // Biskra
+      '08': { home: 1200, desk: 900 },  // Bechar
+      '09': { home: 650, desk: 400 },  // Blida
+      '10': { home: 700, desk: 400 },  // Bouira
       '11': { home: 1600, desk: 1200 },  // Tamanrasset
-      '12': { home: 850,  desk: 550  },  // Tébessa
-      '13': { home: 750,  desk: 450  },  // Tlemcen
-      '14': { home: 750,  desk: 450  },  // Tiaret
-      '15': { home: 700,  desk: 400  },  // Tizi Ouzou
-      '16': { home: 500,  desk: 300  },  // Alger
-      '17': { home: 800,  desk: 550  },  // Djelfa
-      '18': { home: 750,  desk: 450  },  // Jijel
-      '19': { home: 700,  desk: 400  },  // Sétif
-      '20': { home: 800,  desk: 550  },  // Saïda
-      '21': { home: 750,  desk: 450  },  // Skikda
-      '22': { home: 750,  desk: 450  },  // Sidi Bel Abbès
-      '23': { home: 750,  desk: 450  },  // Annaba
-      '24': { home: 800,  desk: 550  },  // Guelma
-      '25': { home: 700,  desk: 400  },  // Constantine
-      '26': { home: 700,  desk: 400  },  // Médéa
-      '27': { home: 750,  desk: 450  },  // Mostaganem
-      '28': { home: 750,  desk: 450  },  // MSila
-      '29': { home: 800,  desk: 550  },  // Mascara
-      '30': { home: 1000, desk: 700  },  // Ouargla
-      '31': { home: 700,  desk: 400  },  // Oran
-      '32': { home: 1000, desk: 700  },  // El Bayadh
+      '12': { home: 850, desk: 550 },  // Tébessa
+      '13': { home: 750, desk: 450 },  // Tlemcen
+      '14': { home: 750, desk: 450 },  // Tiaret
+      '15': { home: 700, desk: 400 },  // Tizi Ouzou
+      '16': { home: 500, desk: 300 },  // Alger
+      '17': { home: 800, desk: 550 },  // Djelfa
+      '18': { home: 750, desk: 450 },  // Jijel
+      '19': { home: 700, desk: 400 },  // Sétif
+      '20': { home: 800, desk: 550 },  // Saïda
+      '21': { home: 750, desk: 450 },  // Skikda
+      '22': { home: 750, desk: 450 },  // Sidi Bel Abbès
+      '23': { home: 750, desk: 450 },  // Annaba
+      '24': { home: 800, desk: 550 },  // Guelma
+      '25': { home: 700, desk: 400 },  // Constantine
+      '26': { home: 700, desk: 400 },  // Médéa
+      '27': { home: 750, desk: 450 },  // Mostaganem
+      '28': { home: 750, desk: 450 },  // MSila
+      '29': { home: 800, desk: 550 },  // Mascara
+      '30': { home: 1000, desk: 700 },  // Ouargla
+      '31': { home: 700, desk: 400 },  // Oran
+      '32': { home: 1000, desk: 700 },  // El Bayadh
       '33': { home: 1800, desk: 1500 },  // Illizi
-      '34': { home: 700,  desk: 400  },  // Bordj Bou Arreridj
-      '35': { home: 700,  desk: 400  },  // Boumerdès
-      '36': { home: 850,  desk: 550  },  // El Tarf
+      '34': { home: 700, desk: 400 },  // Bordj Bou Arreridj
+      '35': { home: 700, desk: 400 },  // Boumerdès
+      '36': { home: 850, desk: 550 },  // El Tarf
       '37': { home: 1600, desk: 1200 },  // Tindouf
-      '38': { home: 750,  desk: 450  },  // Tissemsilt
-      '39': { home: 1000, desk: 700  },  // El Oued
-      '40': { home: 800,  desk: 550  },  // Khenchela
-      '41': { home: 800,  desk: 550  },  // Souk Ahras
-      '42': { home: 650,  desk: 400  },  // Tipaza
-      '43': { home: 750,  desk: 450  },  // Mila
-      '44': { home: 700,  desk: 400  },  // Aïn Defla
-      '45': { home: 1000, desk: 700  },  // Naâma
-      '46': { home: 800,  desk: 550  },  // Aïn Témouchent
-      '47': { home: 1000, desk: 700  },  // Ghardaïa
-      '48': { home: 750,  desk: 450  },  // Relizane
-      '49': { home: 1200, desk: 900  },  // Timimoun
+      '38': { home: 750, desk: 450 },  // Tissemsilt
+      '39': { home: 1000, desk: 700 },  // El Oued
+      '40': { home: 800, desk: 550 },  // Khenchela
+      '41': { home: 800, desk: 550 },  // Souk Ahras
+      '42': { home: 650, desk: 400 },  // Tipaza
+      '43': { home: 750, desk: 450 },  // Mila
+      '44': { home: 700, desk: 400 },  // Aïn Defla
+      '45': { home: 1000, desk: 700 },  // Naâma
+      '46': { home: 800, desk: 550 },  // Aïn Témouchent
+      '47': { home: 1000, desk: 700 },  // Ghardaïa
+      '48': { home: 750, desk: 450 },  // Relizane
+      '49': { home: 1200, desk: 900 },  // Timimoun
       '50': { home: 1800, desk: 1500 },  // Bordj Badji Mokhtar
-      '51': { home: 900,  desk: 600  },  // Ouled Djellal
-      '52': { home: 1200, desk: 900  },  // Béni Abbès
-      '53': { home: 1200, desk: 900  },  // Aïn Salah
+      '51': { home: 900, desk: 600 },  // Ouled Djellal
+      '52': { home: 1200, desk: 900 },  // Béni Abbès
+      '53': { home: 1200, desk: 900 },  // Aïn Salah
       '54': { home: 1800, desk: 1500 },  // In Guezzam
-      '55': { home: 1000, desk: 700  },  // Touggourt
+      '55': { home: 1000, desk: 700 },  // Touggourt
       '56': { home: 1800, desk: 1500 },  // Djanet
-      '57': { home: 1000, desk: 700  },  // El MGhair
-      '58': { home: 1000, desk: 700  },  // El Menia
+      '57': { home: 1000, desk: 700 },  // El MGhair
+      '58': { home: 1000, desk: 700 },  // El Menia
     };
 
     let currentPack = null;
@@ -1462,7 +1727,10 @@
 
         // Selected products
         creatorSelectedProductIds = [...(data.productIds || [])];
-        if (allAdminProducts.length > 0) renderAdminProducts();
+        if (allAdminProducts.length > 0) {
+          renderAdminProducts();
+          if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
+        }
 
       } catch (err) {
         console.error('Error loading pack for edit:', err);
@@ -1484,6 +1752,7 @@
       const imgWrap = document.getElementById('cl-current-image-wrap');
       if (imgWrap) imgWrap.style.display = 'none';
       creatorSelectedProductIds = [];
+      if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
       clUpdatePriceFields();
     }
 
@@ -1573,6 +1842,7 @@
         const raw = await res.json();
         allAdminProducts = raw;
         renderAdminProducts();
+        if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
       } catch (err) {
         list.innerHTML = 'خطأ في تحميل المنتجات.';
       }
@@ -1656,11 +1926,11 @@
       // Update arrow visibility after scroll settles
       setTimeout(() => {
         const atStart = el.scrollLeft <= 4;
-        const atEnd   = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+        const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
         const lBtn = document.getElementById('cl-scroll-left');
         const rBtn = document.getElementById('cl-scroll-right');
         if (lBtn) lBtn.style.opacity = atStart ? '0.3' : '1';
-        if (rBtn) rBtn.style.opacity = atEnd   ? '0.3' : '1';
+        if (rBtn) rBtn.style.opacity = atEnd ? '0.3' : '1';
       }, 350);
     };
 
@@ -1670,6 +1940,52 @@
       } else {
         creatorSelectedProductIds.push(id);
       }
+      renderAdminProducts();
+      if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
+    };
+
+    window.renderSelectedProducts = function () {
+      const container = document.getElementById('cl-selected-products-container');
+      const list = document.getElementById('cl-create-selected-list');
+      if (!container || !list) return;
+
+      if (creatorSelectedProductIds.length === 0) {
+        container.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+
+      container.style.display = 'block';
+
+      list.innerHTML = creatorSelectedProductIds.map((id, index) => {
+        const p = allAdminProducts.find(x => x.id === id);
+        if (!p) return '';
+        const img = p.images && p.images[0] ? p.images[0].src : '';
+        const shortName = p.name.replace(/^original\s*/i, '').trim();
+
+        // Opacity style for disabled buttons
+        const disL = index === 0 ? 'opacity:0.3; cursor:not-allowed;' : '';
+        const disR = index === creatorSelectedProductIds.length - 1 ? 'opacity:0.3; cursor:not-allowed;' : '';
+
+        return `
+                <div style="position: relative; width: 100%; border: 2.5px solid var(--ink); border-radius: 10px; overflow: hidden; text-align: center; background: var(--paper); box-shadow: 0 3px 12px rgba(0,0,0,0.14);">
+                  ${img ? `<img src="${img}" style="width: 100%; height: 80px; object-fit: cover; display: block;">` : '<div style="width:100%; height: 80px; background:#eee;"></div>'}
+                  <div style="padding: 6px; font-size: 10px; font-weight: 700; line-height: 1.35; color: var(--ink); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 30px;">${shortName}</div>
+                  <div style="display: flex; border-top: 1px solid var(--line);">
+                    <button onclick="clMoveProduct(${index}, -1)" style="flex:1; padding: 4px; background: #eee; border:none; cursor: pointer; border-right: 1px solid var(--line); ${disL}" ${index === 0 ? 'disabled' : ''}>❮</button>
+                    <button onclick="clMoveProduct(${index}, 1)" style="flex:1; padding: 4px; background: #eee; border:none; cursor: pointer; ${disR}" ${index === creatorSelectedProductIds.length - 1 ? 'disabled' : ''}>❯</button>
+                  </div>
+                  <div onclick="clToggleAdminProduct(${p.id})" style="position:absolute; top: 4px; right: 4px; background: var(--danger); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;">×</div>
+                </div>`;
+      }).join('');
+    };
+
+    window.clMoveProduct = function (index, dir) {
+      if (index + dir < 0 || index + dir >= creatorSelectedProductIds.length) return;
+      const temp = creatorSelectedProductIds[index];
+      creatorSelectedProductIds[index] = creatorSelectedProductIds[index + dir];
+      creatorSelectedProductIds[index + dir] = temp;
+      renderSelectedProducts();
       renderAdminProducts();
     };
 
@@ -1879,34 +2195,76 @@
 
     async function loadPackProducts(ids) {
       try {
+        // ── Phase 1: Fetch product info and render cards immediately ──
         const url = `${BASE}/wp-json/wc/v3/products?include=${ids.join(',')}&status=publish&per_page=100&_fields=id,name,images,price,variations,brands&consumer_key=${CK}&consumer_secret=${CS}`;
         const res = await fetch(url);
         const matching = await res.json();
 
-        const enriched = await Promise.all(matching.map(async p => {
-          const vars = await fetchVariations(p.id);
-          return {
-            id: p.id,
-            name: p.name,
-            brand: p.brands && p.brands[0] ? p.brands[0].name : '',
-            image: p.images && p.images[0] ? p.images[0].src : '',
-            thumb: p.images && p.images[0] ? (p.images[0].thumbnail || p.images[0].src) : '',
-            price: parseFloat(p.price) || 0,
-            variations: vars
-          };
+        products = matching.map(p => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brands && p.brands[0] ? p.brands[0].name : '',
+          image: p.images && p.images[0] ? p.images[0].src : '',
+          thumb: p.images && p.images[0] ? (p.images[0].thumbnail || p.images[0].src) : '',
+          images: p.images || [],
+          price: parseFloat(p.price) || 0,
+          variations: [] // empty for now — sizes load in phase 2
         }));
 
-        products = enriched.filter(p => p.variations.length > 0);
-        if (products.length === 0) throw new Error('no pack products with stock');
+        // Sort to match the admin-chosen order
+        products.sort((a, b) => {
+          const idxA = ids.indexOf(a.id);
+          const idxB = ids.indexOf(b.id);
+          return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+        });
+
+        if (products.length === 0) throw new Error('no pack products');
+
+        // Render the grid RIGHT NOW — user sees images + names instantly
         renderGrid();
+
+        // ── Phase 2: Fetch sizes in parallel, update each card as it arrives ──
+        await Promise.all(products.map(async p => {
+          const vars = await fetchVariations(p.id);
+          p.variations = vars;
+
+          // Drop the sizes into the already-visible card
+          const sizesDiv = document.getElementById('cl-sizes-' + p.id);
+          if (sizesDiv && vars.length > 0) {
+            const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+            const sorted = [...vars].sort((a, b) => {
+              const ai = sizeOrder.indexOf(a.size.toUpperCase());
+              const bi = sizeOrder.indexOf(b.size.toUpperCase());
+              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+            });
+            sizesDiv.innerHTML = sorted.map(v => {
+              const inStock = v.status === 'instock';
+              const isLow = inStock && v.qty !== null && v.qty <= 3;
+              let cls = !inStock ? 'out' : isLow ? 'low' : '';
+              let stockLabel = !inStock
+                ? '<span class="cl-pill-stock out-lbl">\u0646\u0641\u062f</span>'
+                : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
+              return `<button class="cl-size-pill ${cls}" data-size="${esc(v.size)}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\\\'")}')">${v.size}${stockLabel}</button>`;
+            }).join('');
+          } else if (sizesDiv && vars.length === 0) {
+            sizesDiv.innerHTML = '<span style="font-size:11px;color:var(--sub);">\u063a\u064a\u0631 \u0645\u062a\u0648\u0641\u0631</span>';
+          }
+        }));
+
+        // Remove products that ended up with zero variations
+        products = products.filter(p => p.variations.length > 0);
+        if (products.length === 0) throw new Error('no pack products with stock');
+
       } catch (err) {
-        document.getElementById('cl-no-products').style.display = 'block';
+        if (!products.length) {
+          document.getElementById('cl-no-products').style.display = 'block';
+        }
       }
     }
 
     function formatSize(str) {
       if (!str) return '?';
-      return String(str).toLowerCase().replace(/المقاس/g, '').replace(/taille/g, '').replace(/[_-]/g, '').trim().toUpperCase();
+      return String(str).toLowerCase().replace(/\u0627\u0644\u0645\u0642\u0627\u0633/g, '').replace(/taille/g, '').replace(/[_-]/g, '').trim().toUpperCase();
     }
 
     async function fetchVariations(pid) {
@@ -1929,28 +2287,41 @@
       if (!products.length) { document.getElementById('cl-no-products').style.display = 'block'; return; }
       const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
       grid.innerHTML = products.map(p => {
-        const sorted = [...p.variations].sort((a, b) => {
-          const ai = sizeOrder.indexOf(a.size.toUpperCase());
-          const bi = sizeOrder.indexOf(b.size.toUpperCase());
-          return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-        });
-        const sizePills = sorted.map(v => {
-          const inStock = v.status === 'instock';
-          const isLow = inStock && v.qty !== null && v.qty <= 3;
-          let cls = !inStock ? 'out' : isLow ? 'low' : '';
-          let stockLabel = !inStock
-            ? '<span class="cl-pill-stock out-lbl">نفد</span>'
-            : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
-          return `<button class="cl-size-pill ${cls}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\'")}')">${v.size}${stockLabel}</button>`;
-        }).join('');
+        let sizePills;
+        if (p.variations.length === 0) {
+          // Phase 1: sizes still loading — show a subtle loading indicator
+          sizePills = '<span style="display:inline-block;font-size:11px;color:var(--sub);animation:clPulse 1.2s infinite;">\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u0644 \u0627\u0644\u0645\u0642\u0627\u0633\u0627\u062a...</span>';
+        } else {
+          const sorted = [...p.variations].sort((a, b) => {
+            const ai = sizeOrder.indexOf(a.size.toUpperCase());
+            const bi = sizeOrder.indexOf(b.size.toUpperCase());
+            return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+          });
+          sizePills = sorted.map(v => {
+            const inStock = v.status === 'instock';
+            const isLow = inStock && v.qty !== null && v.qty <= 3;
+            let cls = !inStock ? 'out' : isLow ? 'low' : '';
+            let stockLabel = !inStock
+              ? '<span class="cl-pill-stock out-lbl">\u0646\u0641\u062f</span>'
+              : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
+            return `<button class="cl-size-pill ${cls}" data-size="${esc(v.size)}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\'")}')">${v.size}${stockLabel}</button>`;
+          }).join('');
+        }
         const shortName = p.name;
+        const hasMore = p.images && p.images.length > 1;
         return `
       <div class="cl-card" id="cl-card-${p.id}">
-        <span class="cl-card-picked-badge" id="cl-badge-${p.id}">✓</span>
-        <img class="cl-card-img" src="${esc(p.thumb || p.image)}" alt="${esc(shortName)}" loading="lazy">
+        <span class="cl-card-picked-badge" id="cl-badge-${p.id}">\u2713</span>
+        <div class="cl-card-img-wrap" onclick="clOpenShowcase(${p.id})" title="tap to view">
+
+          <img class="cl-card-img" src="${esc(p.thumb || p.image)}" alt="${esc(shortName)}" loading="lazy">
+
+          ${hasMore ? `<div class="cl-card-img-badge">+${p.images.length - 1} photos</div>` : ''}
+
+        </div>
         <div class="cl-card-body">
           <div class="cl-card-name">${esc(shortName)}</div>
-          <div class="cl-card-sizes-label">اختر مقاسك</div>
+          <div class="cl-card-sizes-label">\u0627\u062e\u062a\u0631 \u0645\u0642\u0627\u0633\u0643</div>
           <div class="cl-card-sizes" id="cl-sizes-${p.id}">${sizePills}</div>
         </div>
       </div>`;
@@ -2000,7 +2371,8 @@
         const sizesDiv = document.getElementById('cl-sizes-' + p.id);
         if (sizesDiv) {
           sizesDiv.querySelectorAll('.cl-size-pill').forEach(btn => {
-            const sz = btn.textContent.trim().replace(/!$/, '');
+            // Use data-size attribute for reliable matching (avoids stock-label text)
+            const sz = btn.dataset.size || btn.textContent.trim().split(/\s/)[0];
             btn.classList.toggle('active', pickedSizes.includes(sz));
           });
         }
@@ -2116,8 +2488,8 @@
 
       // ── Facebook Pixel: InitiateCheckout ──
       if (typeof fbq === 'function') {
-        try { 
-          fbq('track', 'InitiateCheckout'); 
+        try {
+          fbq('track', 'InitiateCheckout');
         } catch (e) { }
       }
 
@@ -2323,12 +2695,12 @@
       // بمجرد أن يكتمل الرقم، نرسله إلى التليجرام
       if (/^(05|06|07)[0-9]{8}$/.test(val) && val !== capturedPhone) {
         capturedPhone = val;
-        
+
         // ── Facebook Pixel: Lead ──
         if (typeof fbq === 'function') {
-          try { fbq('track', 'Lead'); } catch(e) {}
+          try { fbq('track', 'Lead'); } catch (e) { }
         }
-        
+
         if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID && TELEGRAM_BOT_TOKEN !== "PUT_YOUR_TELEGRAM_BOT_TOKEN_HERE") {
           try {
             const nameEl = document.getElementById('cl-name');
@@ -2368,6 +2740,96 @@
     function showErr(msg) { const e = document.getElementById('cl-err'); e.textContent = msg; e.classList.add('show'); }
     function hideErr() { document.getElementById('cl-err').classList.remove('show'); }
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    // ── Image Showcase ──────────────────────────────────────────
+    let _showcaseImages = [];
+    let _showcaseIdx = 0;
+
+    function _showcaseRender() {
+      const imgs = _showcaseImages;
+      const i = _showcaseIdx;
+      document.getElementById('cl-img-showcase-main').src = imgs[i].src;
+      document.getElementById('cl-img-showcase-main').alt = imgs[i].alt || '';
+      document.getElementById('cl-img-showcase-counter').textContent = (i + 1) + ' / ' + imgs.length;
+
+      // Dots
+      const dotsEl = document.getElementById('cl-img-showcase-dots');
+      dotsEl.innerHTML = imgs.length > 1 ? imgs.map((_, j) =>
+        `<button class="cl-showcase-dot${j === i ? ' active' : ''}" onclick="_showcaseGo(${j})" aria-label="صورة ${j + 1}"></button>`
+      ).join('') : '';
+
+      // Thumbs
+      const thumbsEl = document.getElementById('cl-img-showcase-thumbs');
+      thumbsEl.innerHTML = imgs.length > 1 ? imgs.map((img, j) =>
+        `<img class="cl-showcase-thumb${j === i ? ' active' : ''}" src="${img.src}" alt="${img.alt || ''}" onclick="_showcaseGo(${j})">`
+      ).join('') : '';
+
+      // Arrows visibility
+      document.getElementById('cl-showcase-prev').style.display = imgs.length > 1 ? 'flex' : 'none';
+      document.getElementById('cl-showcase-next').style.display = imgs.length > 1 ? 'flex' : 'none';
+    }
+
+    window._showcaseGo = function (idx) {
+      _showcaseIdx = (idx + _showcaseImages.length) % _showcaseImages.length;
+      _showcaseRender();
+    };
+
+    window.clOpenShowcase = function (pid) {
+      const p = products.find(x => x.id === pid);
+      if (!p) return;
+      // Use all WooCommerce images if available, fallback to single image
+      _showcaseImages = (p.images && p.images.length > 0)
+        ? p.images.map(img => ({ src: img.src, alt: img.alt || p.name }))
+        : [{ src: p.image || p.thumb, alt: p.name }];
+      _showcaseIdx = 0;
+      document.getElementById('cl-img-showcase-label').textContent = p.name;
+      _showcaseRender();
+      document.getElementById('cl-img-showcase-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    function clCloseShowcase() {
+      document.getElementById('cl-img-showcase-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('cl-img-showcase-close').addEventListener('click', clCloseShowcase);
+    document.getElementById('cl-img-showcase-overlay').addEventListener('click', function (e) {
+      if (e.target === this) clCloseShowcase();
+    });
+    document.getElementById('cl-showcase-prev').addEventListener('click', function (e) {
+      e.stopPropagation();
+      _showcaseGo(_showcaseIdx - 1);
+    });
+    document.getElementById('cl-showcase-next').addEventListener('click', function (e) {
+      e.stopPropagation();
+      _showcaseGo(_showcaseIdx + 1);
+    });
+    window.addEventListener('keydown', function (e) {
+      const overlay = document.getElementById('cl-img-showcase-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') clCloseShowcase();
+      if (e.key === 'ArrowLeft') _showcaseGo(_showcaseIdx - 1);
+      if (e.key === 'ArrowRight') _showcaseGo(_showcaseIdx + 1);
+    });
+    // Touch/swipe support
+    (function () {
+      const wrap = document.getElementById('cl-img-showcase-wrap');
+      let tx = 0;
+      wrap.addEventListener('touchstart', e => { tx = e.changedTouches[0].clientX; }, { passive: true });
+      wrap.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 40) _showcaseGo(_showcaseIdx + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+    })();
+
+    // Navigation arrows for client grid
+    window.clScrollClientGrid = function (dir) {
+      const el = document.getElementById('cl-grid');
+      if (!el) return;
+      const step = el.clientWidth * 0.75 || 200;
+      el.scrollBy({ left: dir === 'right' ? step : -step, behavior: 'smooth' });
+    };
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', router);
