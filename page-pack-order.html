@@ -1630,6 +1630,7 @@
     let picks = [];
     let allAdminProducts = [];
     let creatorSelectedProductIds = [];
+    let creatorProductFitLabels = {};
     let editingPackId = null;
 
     window.addEventListener('hashchange', router);
@@ -1727,6 +1728,7 @@
 
         // Selected products
         creatorSelectedProductIds = [...(data.productIds || [])];
+        creatorProductFitLabels = data.fitLabels ? { ...data.fitLabels } : {};
         if (allAdminProducts.length > 0) {
           renderAdminProducts();
           if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
@@ -1752,6 +1754,7 @@
       const imgWrap = document.getElementById('cl-current-image-wrap');
       if (imgWrap) imgWrap.style.display = 'none';
       creatorSelectedProductIds = [];
+      creatorProductFitLabels = {};
       if (typeof renderSelectedProducts === 'function') renderSelectedProducts();
       clUpdatePriceFields();
     }
@@ -1966,9 +1969,13 @@
         // Opacity style for disabled buttons
         const disL = index === 0 ? 'opacity:0.3; cursor:not-allowed;' : '';
         const disR = index === creatorSelectedProductIds.length - 1 ? 'opacity:0.3; cursor:not-allowed;' : '';
+        const fitLabel = creatorProductFitLabels[id] || 'لباس';
+        const fitBg = fitLabel === 'لباس' ? 'var(--ink)' : '#c0392b';
+        const fitText = fitLabel;
 
         return `
                 <div style="position: relative; width: 100%; border: 2.5px solid var(--ink); border-radius: 10px; overflow: hidden; text-align: center; background: var(--paper); box-shadow: 0 3px 12px rgba(0,0,0,0.14);">
+                  <div onclick="clToggleFitLabel(${p.id})" style="position:absolute; top: 4px; left: 4px; background: ${fitBg}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; z-index: 2;">${fitText}</div>
                   ${img ? `<img src="${img}" style="width: 100%; height: 80px; object-fit: cover; display: block;">` : '<div style="width:100%; height: 80px; background:#eee;"></div>'}
                   <div style="padding: 6px; font-size: 10px; font-weight: 700; line-height: 1.35; color: var(--ink); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 30px;">${shortName}</div>
                   <div style="display: flex; border-top: 1px solid var(--line);">
@@ -1978,6 +1985,21 @@
                   <div onclick="clToggleAdminProduct(${p.id})" style="position:absolute; top: 4px; right: 4px; background: var(--danger); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;">×</div>
                 </div>`;
       }).join('');
+    };
+
+    window.clToggleFitLabel = function (id) {
+      const current = creatorProductFitLabels[id] || 'لباس';
+      const next = current === 'لباس' ? 'ماشي لباس' : 'لباس';
+      
+      creatorProductFitLabels[id] = next;
+      if (next === 'ماشي لباس') {
+        creatorSelectedProductIds.forEach(pid => {
+          if (pid !== id) {
+            creatorProductFitLabels[pid] = 'لباس';
+          }
+        });
+      }
+      renderSelectedProducts();
     };
 
     window.clMoveProduct = function (index, dir) {
@@ -2051,6 +2073,7 @@
             prices: prices,
             bestPill: bestPill,
             productIds: creatorSelectedProductIds,
+            fitLabels: creatorProductFitLabels,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           if (finalImage) updateData.image = finalImage;
@@ -2064,6 +2087,7 @@
             prices: prices,
             bestPill: bestPill,
             productIds: creatorSelectedProductIds,
+            fitLabels: creatorProductFitLabels,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           alert('تم إنشاء الباقة بنجاح!');
@@ -2309,10 +2333,13 @@
         }
         const shortName = p.name;
         const hasMore = p.images && p.images.length > 1;
+        const fitLabel = (currentPack && currentPack.fitLabels && currentPack.fitLabels[p.id]) || 'لباس';
+        const fitBadgeHtml = `<div style="position:absolute; top: 4px; left: 4px; background: ${fitLabel === 'لباس' ? 'var(--ink)' : '#c0392b'}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${fitLabel}</div>`;
         return `
       <div class="cl-card" id="cl-card-${p.id}">
         <span class="cl-card-picked-badge" id="cl-badge-${p.id}">\u2713</span>
         <div class="cl-card-img-wrap" onclick="clOpenShowcase(${p.id})" title="tap to view">
+          ${fitBadgeHtml}
 
           <img class="cl-card-img" src="${esc(p.thumb || p.image)}" alt="${esc(shortName)}" loading="lazy">
 
