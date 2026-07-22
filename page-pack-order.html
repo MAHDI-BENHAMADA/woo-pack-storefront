@@ -1969,8 +1969,10 @@
         // Opacity style for disabled buttons
         const disL = index === 0 ? 'opacity:0.3; cursor:not-allowed;' : '';
         const disR = index === creatorSelectedProductIds.length - 1 ? 'opacity:0.3; cursor:not-allowed;' : '';
-        const fitLabel = creatorProductFitLabels[id] || 'لباس';
-        const fitBg = fitLabel === 'لباس' ? 'var(--ink)' : '#c0392b';
+        const fitLabel = creatorProductFitLabels[id] || 'مقاس حقيقي';
+        let fitBg = 'var(--ink)';
+        if (fitLabel === 'يلبس كبير') fitBg = '#e67e22';
+        if (fitLabel === 'يلبس صغير') fitBg = '#c0392b';
         const fitText = fitLabel;
 
         return `
@@ -1988,17 +1990,13 @@
     };
 
     window.clToggleFitLabel = function (id) {
-      const current = creatorProductFitLabels[id] || 'لباس';
-      const next = current === 'لباس' ? 'ماشي لباس' : 'لباس';
+      const current = creatorProductFitLabels[id] || 'مقاس حقيقي';
+      let next = 'مقاس حقيقي';
+      if (current === 'مقاس حقيقي') next = 'يلبس كبير';
+      else if (current === 'يلبس كبير') next = 'يلبس صغير';
+      else next = 'مقاس حقيقي';
       
       creatorProductFitLabels[id] = next;
-      if (next === 'ماشي لباس') {
-        creatorSelectedProductIds.forEach(pid => {
-          if (pid !== id) {
-            creatorProductFitLabels[pid] = 'لباس';
-          }
-        });
-      }
       renderSelectedProducts();
     };
 
@@ -2333,8 +2331,11 @@
         }
         const shortName = p.name;
         const hasMore = p.images && p.images.length > 1;
-        const fitLabel = (currentPack && currentPack.fitLabels && currentPack.fitLabels[p.id]) || 'لباس';
-        const fitBadgeHtml = `<div style="position:absolute; top: 4px; left: 4px; background: ${fitLabel === 'لباس' ? 'var(--ink)' : '#c0392b'}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${fitLabel}</div>`;
+        const fitLabel = (currentPack && currentPack.fitLabels && currentPack.fitLabels[p.id]) || 'مقاس حقيقي';
+        let fitBg = 'var(--ink)';
+        if (fitLabel === 'يلبس كبير') fitBg = '#e67e22';
+        if (fitLabel === 'يلبس صغير') fitBg = '#c0392b';
+        const fitBadgeHtml = `<div style="position:absolute; top: 4px; left: 4px; background: ${fitBg}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${fitLabel}</div>`;
         return `
       <div class="cl-card" id="cl-card-${p.id}">
         <span class="cl-card-picked-badge" id="cl-badge-${p.id}">\u2713</span>
