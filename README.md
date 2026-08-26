@@ -6,31 +6,31 @@ A production-ready, mobile-first e-commerce storefront built for an Algerian fas
 
 ---
 
-## ✨ Features
+## Features
 
 ### Customer-Facing
-- 🛍️ **Pack browsing** — visual grid of owner-created packs loaded from Firestore
-- 👕 **Product carousel** — horizontal swipe carousel with live stock levels per size
-- 💰 **Dynamic pricing pills** — pack prices auto-rendered from Firestore config (1–5 pieces)
-- 📦 **Smart shipping** — per-wilaya home/desk delivery rates for all 58 Algerian wilayas
-- 🧾 **Live order review** — itemized summary with shipping cost updated in real time
-- ✅ **One-tap checkout** — order submitted directly to WooCommerce via REST API
+- **Pack browsing** — visual grid of owner-created packs loaded from Firestore
+- **Product carousel** — horizontal swipe carousel with live stock levels per size
+- **Dynamic pricing pills** — pack prices auto-rendered from Firestore config (1–5 pieces)
+- **Smart shipping** — per-wilaya home/desk delivery rates for all 58 Algerian wilayas
+- **Live order review** — itemized summary with shipping cost updated in real time
+- **One-tap checkout** — order submitted directly to WooCommerce via REST API
 
 ### Admin Dashboard
-- 🔐 **Firebase Auth login** — secure owner-only access
-- ➕ **Pack creator** — name, image (Cloudinary upload), price tiers, best-pill badge, product picker
-- ✏️ **Pack editor** — pre-populated edit form for existing packs
-- 🗑️ **Pack deletion** — with confirmation prompt
+- **Firebase Auth login** — secure owner-only access
+- **Pack creator** — name, image (Cloudinary upload), price tiers, best-pill badge, product picker
+- **Pack editor** — pre-populated edit form for existing packs
+- **Pack deletion** — with confirmation prompt
 
 ### Integrations
-- 📲 **Telegram notifications** — instant order alerts + incomplete order capture
-- 📊 **Meta Pixel** — `Lead`, `InitiateCheckout`, and `Purchase` events
-- 🖼️ **Cloudinary** — image hosting for pack thumbnails
-- 🔥 **Firebase Firestore** — pack storage, real-time reads
+- **Telegram notifications** — instant order alerts + incomplete order capture
+- **Meta Pixel** — `Lead`, `InitiateCheckout`, and `Purchase` events
+- **Cloudinary** — image hosting for pack thumbnails
+- **Firebase Firestore** — pack storage, real-time reads
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -45,7 +45,7 @@ A production-ready, mobile-first e-commerce storefront built for an Algerian fas
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ### 1. Clone the repo
 ```bash
@@ -79,7 +79,7 @@ This is a standalone HTML file — host it anywhere:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 woo-pack-storefront/
@@ -92,14 +92,14 @@ woo-pack-storefront/
 
 ---
 
-## 🔑 Credentials
+## Credentials
 
 > [!CAUTION]
 > **Never commit real API keys.** The `.env` file is listed in `.gitignore`. Only commit `.env.example` with placeholder values.
 
 ---
 
-## 📸 Views
+## Views
 
 | View | Description |
 |---|---|
@@ -110,6 +110,6 @@ woo-pack-storefront/
 
 ---
 
-## 📄 License
+## License
 
 MIT — free to use, fork, and adapt.
