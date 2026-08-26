@@ -2245,33 +2245,46 @@
         // Render the grid RIGHT NOW — user sees images + names instantly
         renderGrid();
 
-        // ── Phase 2: Fetch sizes in parallel, update each card as it arrives ──
-        await Promise.all(products.map(async p => {
-          const vars = await fetchVariations(p.id);
-          p.variations = vars;
+        // ── Phase 2: Fetch sizes in batches of 3 to avoid overwhelming the server ──
+        const BATCH_SIZE = 3;
+        const BATCH_DELAY = 300; // ms pause between batches
 
-          // Drop the sizes into the already-visible card
-          const sizesDiv = document.getElementById('cl-sizes-' + p.id);
-          if (sizesDiv && vars.length > 0) {
-            const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
-            const sorted = [...vars].sort((a, b) => {
-              const ai = sizeOrder.indexOf(a.size.toUpperCase());
-              const bi = sizeOrder.indexOf(b.size.toUpperCase());
-              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-            });
-            sizesDiv.innerHTML = sorted.map(v => {
-              const inStock = v.status === 'instock';
-              const isLow = inStock && v.qty !== null && v.qty <= 3;
-              let cls = !inStock ? 'out' : isLow ? 'low' : '';
-              let stockLabel = !inStock
-                ? '<span class="cl-pill-stock out-lbl">\u0646\u0641\u062f</span>'
-                : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
-              return `<button class="cl-size-pill ${cls}" data-size="${esc(v.size)}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\\\'")}')">${v.size}${stockLabel}</button>`;
-            }).join('');
-          } else if (sizesDiv && vars.length === 0) {
-            sizesDiv.innerHTML = '<span style="font-size:11px;color:var(--sub);">\u063a\u064a\u0631 \u0645\u062a\u0648\u0641\u0631</span>';
+        for (let i = 0; i < products.length; i += BATCH_SIZE) {
+          const batch = products.slice(i, i + BATCH_SIZE);
+
+          // Fetch this batch concurrently (max 3 at a time)
+          await Promise.all(batch.map(async p => {
+            const vars = await fetchVariations(p.id);
+            p.variations = vars;
+
+            // Drop the sizes into the already-visible card
+            const sizesDiv = document.getElementById('cl-sizes-' + p.id);
+            if (sizesDiv && vars.length > 0) {
+              const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+              const sorted = [...vars].sort((a, b) => {
+                const ai = sizeOrder.indexOf(a.size.toUpperCase());
+                const bi = sizeOrder.indexOf(b.size.toUpperCase());
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+              });
+              sizesDiv.innerHTML = sorted.map(v => {
+                const inStock = v.status === 'instock';
+                const isLow = inStock && v.qty !== null && v.qty <= 3;
+                let cls = !inStock ? 'out' : isLow ? 'low' : '';
+                let stockLabel = !inStock
+                  ? '<span class="cl-pill-stock out-lbl">\u0646\u0641\u062f</span>'
+                  : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
+                return `<button class="cl-size-pill ${cls}" data-size="${esc(v.size)}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\\\\\\\'")}')">${v.size}${stockLabel}</button>`;
+              }).join('');
+            } else if (sizesDiv && vars.length === 0) {
+              sizesDiv.innerHTML = '<span style="font-size:11px;color:var(--sub);">\u063a\u064a\u0631 \u0645\u062a\u0648\u0641\u0631</span>';
+            }
+          }));
+
+          // Small pause before the next batch to let the server breathe
+          if (i + BATCH_SIZE < products.length) {
+            await new Promise(r => setTimeout(r, BATCH_DELAY));
           }
-        }));
+        }
 
         // Remove products that ended up with zero variations
         products = products.filter(p => p.variations.length > 0);
@@ -2289,11 +2302,23 @@
       return String(str).toLowerCase().replace(/\u0627\u0644\u0645\u0642\u0627\u0633/g, '').replace(/taille/g, '').replace(/[_-]/g, '').trim().toUpperCase();
     }
 
-    async function fetchVariations(pid) {
+    async function fetchVariations(pid, _retryCount = 0) {
+      const MAX_RETRIES = 3;
+      const BASE_DELAY = 800; // ms — doubles each retry (800, 1600, 3200)
       try {
         const url = `${BASE}/wp-json/wc/v3/products/${pid}/variations?per_page=20&_fields=id,attributes,stock_status,stock_quantity&consumer_key=${CK}&consumer_secret=${CS}`;
         const res = await fetch(url);
-        if (!res.ok) return [];
+        if (!res.ok) {
+          // Server error (503, 429, etc.) — retry if we haven't exhausted attempts
+          if (_retryCount < MAX_RETRIES) {
+            const delay = BASE_DELAY * Math.pow(2, _retryCount);
+            console.warn(`[Pack] Variation fetch for product ${pid} failed (HTTP ${res.status}), retrying in ${delay}ms... (attempt ${_retryCount + 1}/${MAX_RETRIES})`);
+            await new Promise(r => setTimeout(r, delay));
+            return fetchVariations(pid, _retryCount + 1);
+          }
+          console.error(`[Pack] Variation fetch for product ${pid} failed after ${MAX_RETRIES} retries.`);
+          return [];
+        }
         const vars = await res.json();
         return vars.map(v => ({
           id: v.id,
@@ -2301,7 +2326,17 @@
           status: v.stock_status,
           qty: v.stock_quantity
         }));
-      } catch { return []; }
+      } catch (err) {
+        // Network error — retry
+        if (_retryCount < MAX_RETRIES) {
+          const delay = BASE_DELAY * Math.pow(2, _retryCount);
+          console.warn(`[Pack] Variation fetch for product ${pid} network error, retrying in ${delay}ms... (attempt ${_retryCount + 1}/${MAX_RETRIES})`);
+          await new Promise(r => setTimeout(r, delay));
+          return fetchVariations(pid, _retryCount + 1);
+        }
+        console.error(`[Pack] Variation fetch for product ${pid} failed after ${MAX_RETRIES} retries:`, err);
+        return [];
+      }
     }
 
     function renderGrid() {
