@@ -1626,6 +1626,7 @@
     };
 
     let currentPack = null;
+    let currentPackId = null;
     let products = [];
     let picks = [];
     let allAdminProducts = [];
@@ -2142,6 +2143,7 @@
       document.getElementById('cl-pricing').innerHTML = '';
       picks = [];
       currentPack = null;
+      currentPackId = id;
       document.getElementById('cl-step-products').style.display = 'block';
       document.getElementById('cl-step-form').style.display = 'block';
       document.getElementById('cl-success').classList.remove('show');
@@ -2391,7 +2393,34 @@
       }).join('');
     }
 
-    window.clInlinePick = function (pid, vid, size) {
+    // ── Sync Firebase cache with current products stock ──
+    async function syncCacheToFirebase() {
+      if (!currentPackId || !products.length) {
+        console.warn('[Pack] Cache sync skipped: currentPackId=', currentPackId, 'products=', products.length);
+        return;
+      }
+      try {
+        const cacheData = products.map(p => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brand || '',
+          image: p.image || '',
+          thumb: p.thumb || p.image || '',
+          images: p.images || [],
+          price: p.price || 0,
+          variations: p.variations
+        }));
+        await db.collection('packs').doc(currentPackId).update({
+          cachedProducts: cacheData,
+          cacheUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('[Pack] Firebase cache synced for pack', currentPackId);
+      } catch (err) {
+        console.error('[Pack] Failed to sync cache:', err);
+      }
+    }
+
+    window.clInlinePick = async function (pid, vid, size) {
       const p = products.find(x => x.id === pid);
       if (!p) return;
 
@@ -2405,6 +2434,71 @@
       if (picks.length >= MAX) {
         showErr(`اخترت ${MAX} قطع بالفعل. اضغط على المقاس مرة ثانية لإلغائه.`);
         return;
+      }
+
+      // ── Find the button and show loading state ──
+      const sizesDiv = document.getElementById('cl-sizes-' + pid);
+      let clickedBtn = null;
+      if (sizesDiv) {
+        clickedBtn = sizesDiv.querySelector(`.cl-size-pill[data-size="${CSS.escape(size)}"]`);
+        if (clickedBtn) {
+          clickedBtn.style.opacity = '0.5';
+          clickedBtn.style.pointerEvents = 'none';
+        }
+      }
+
+      // ── Real-time stock check before adding to cart ──
+      try {
+        const url = `${BASE}/wp-json/wc/v3/products/${pid}/variations?per_page=100&_fields=id,stock_status,stock_quantity&consumer_key=${CK}&consumer_secret=${CS}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const vars = await res.json();
+          const variation = vars.find(v => v.id === vid);
+          if (!variation || variation.stock_status !== 'instock') {
+            // ── Out of stock: update UI pill to disabled ──
+            const variationData = p.variations.find(v => v.id === vid);
+            if (variationData) {
+              variationData.status = 'outofstock';
+              variationData.qty = 0;
+            }
+            // Re-render this product's size pills
+            if (sizesDiv && p.variations.length > 0) {
+              const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+              const sorted = [...p.variations].sort((a, b) => {
+                const ai = sizeOrder.indexOf(a.size.toUpperCase());
+                const bi = sizeOrder.indexOf(b.size.toUpperCase());
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+              });
+              sizesDiv.innerHTML = sorted.map(v => {
+                const inStock = v.status === 'instock';
+                const isLow = inStock && v.qty !== null && v.qty <= 3;
+                let cls = !inStock ? 'out' : isLow ? 'low' : '';
+                let stockLabel = !inStock
+                  ? '<span class="cl-pill-stock out-lbl">\u0646\u0641\u062f</span>'
+                  : v.qty !== null ? `<span class="cl-pill-stock">${v.qty}</span>` : '';
+                return `<button class="cl-size-pill ${cls}" data-size="${esc(v.size)}" ${!inStock ? 'disabled' : ''} onclick="clInlinePick(${p.id},${v.id},'${v.size.replace(/'/g, "\\'")}')"> ${v.size}${stockLabel}</button>`;
+              }).join('');
+            }
+            // ── Update Firebase cache so Client B sees it ──
+            await syncCacheToFirebase();
+            // No error message — pill UI shows it's out of stock
+            return;
+          }
+          // Update local stock data with fresh info
+          const variationData = p.variations.find(v => v.id === vid);
+          if (variationData) {
+            variationData.status = variation.stock_status;
+            variationData.qty = variation.stock_quantity;
+          }
+        }
+      } catch (stockErr) {
+        console.warn('[Pack] Stock check failed, proceeding with selection:', stockErr);
+      }
+
+      // ── Restore button if stock check passed ──
+      if (clickedBtn) {
+        clickedBtn.style.opacity = '';
+        clickedBtn.style.pointerEvents = '';
       }
 
       picks.push({ productId: pid, variationId: vid, name: p.name, brand: p.brand, image: p.thumb || p.image, price: p.price, size });
@@ -2630,6 +2724,22 @@
         );
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || data.code || 'خطأ في الخادم');
+
+        // ── Update local stock + Firebase cache after successful order ──
+        for (const pick of picks) {
+          const product = products.find(p => p.id === pick.productId);
+          if (!product) continue;
+          const variation = product.variations.find(v => v.id === pick.variationId);
+          if (variation) {
+            if (variation.qty !== null) {
+              variation.qty = Math.max(0, variation.qty - 1);
+            }
+            if (variation.qty === 0) {
+              variation.status = 'outofstock';
+            }
+          }
+        }
+        syncCacheToFirebase();
 
         // ── Facebook Pixel: Purchase ──
         if (typeof fbq === 'function') {
